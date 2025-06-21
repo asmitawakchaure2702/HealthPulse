@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPulse AI - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #4CAF50;
+            --accent-color: #FFC107;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: bold;
+        }
+        
+        .nav-link {
+            color: var(--text-color) !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            padding: 20px;
+        }
+        
+        .chat-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        
+        .message.user {
+            margin-left: auto;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 15px 15px 0 15px;
+            padding: 10px 15px;
+        }
+        
+        .message.ai {
+            background-color: var(--light-bg);
+            border-radius: 15px 15px 15px 0;
+            padding: 10px 15px;
+        }
+        
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-radius: 15px;
+            padding: 10px 15px;
+            margin: 10px auto;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background-color: white;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .form-control {
+            border-radius: 25px;
+            padding: 12px 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3d8b40;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #cccccc;
+        }
+        
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 0;
+            margin-top: 40px;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        
+        .social-icons a:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Voice Input Styling */
+        #voiceButton {
+            transition: all 0.3s ease;
+        }
+        
+        #voiceButton.listening {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        #voiceStatus {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            height: 20px;
+        }
+        
+        .input-group {
+            width: 100%;
+        }
+        
+        .input-group .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+        }
+        
+        /* Medical Response Styling */
+        .medical-response {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .medical-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+        }
+        
+        .medical-section {
+            margin: 15px 0;
+        }
+        
+        .medical-section strong {
+            color: var(--secondary-color);
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .medical-section ul {
+            list-style-type: none;
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .medical-section ul li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .medical-section ul li:before {
+            content: '•';
+            color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+        }
+        
+        .medical-disclaimer {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff3e0;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">HealthPulse AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Health Tools Section -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Health Tools</h4>
+                        
+                        <!-- BMI Calculator -->
+                        <div class="mb-4">
+                            <h5>BMI Calculator</h5>
+                            <form id="bmiForm" class="mb-3">
+                                <div class="mb-2">
+                                    <label for="weight" class="form-label">Weight (kg)</label>
+                                    <input type="number" class="form-control" id="weight" required min="1" step="0.1">
+                                </div>
+                                <div class="mb-2">
+                                    <label for="height" class="form-label">Height (cm)</label>
+                                    <input type="number" class="form-control" id="height" required min="1" step="0.1">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">Calculate BMI</button>
+                            </form>
+                            <div id="bmiResult" class="alert alert-info" style="display: none;"></div>
+                        </div>
+
+                        <!-- Water Reminder -->
+                        <div>
+                            <h5>Water Reminder</h5>
+                            <div class="mb-3">
+                                <label for="waterGoal" class="form-label">Daily Goal (glasses)</label>
+                                <input type="number" class="form-control" id="waterGoal" value="8" min="1" max="20">
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Glasses drunk today: <span id="waterCount">0</span></span>
+                                    <button class="btn btn-primary btn-sm" onclick="addWater()">+ Add Glass</button>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div id="waterProgress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Goal resets daily at midnight</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="col-md-8">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h4>HealthPulse AI Assistant</h4>
+                        <p class="mb-0">How can I help you today?</p>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Messages will be added here dynamically -->
+                    </div>
+                    <div class="chat-input">
+                        <form id="messageForm" class="d-flex align-items-center">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="userInput" placeholder="Type your message here..." required>
+                                <button type="submit" class="btn btn-primary" id="sendButton">Send</button>
+                                <button type="button" class="btn btn-outline-secondary ms-2" id="voiceButton" title="Voice Input">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <div id="voiceStatus" class="text-center mt-2" style="display: none;">
+                            <small class="text-muted"><i class="fas fa-circle-notch fa-spin me-1"></i>Listening...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>HealthPulse AI</h5>
+                    <p>Your trusted health companion powered by artificial intelligence.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-white">Home</a></li>
+                        <li><a href="about.html" class="text-white">About</a></li>
+                        <li><a href="contact.html" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Connect With Us</h5>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-4">
+            <div class="text-center">
+                <p>&copy; 2024 HealthPulse AI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="dashboard.js"></script>
+
+    <script>
+        // Remove login check and initialize chat immediately
+        window.onload = function() {
+            // Add initial welcome message
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message ai">
+                    Hello! I'm your HealthPulse AI Assistant. I can help you with health-related questions and information. 
+                    Feel free to ask me anything about:
+                    <ul>
+                        <li>Common health conditions and symptoms</li>
+                        <li>General health advice and tips</li>
+                        <li>Lifestyle and wellness recommendations</li>
+                        <li>Basic medical information</li>
+                    </ul>
+                    How can I assist you today?
+                </div>
+            `;
+
+            // Focus on chat input if hash is present
+            if (window.location.hash === '#chat') {
+                document.getElementById('userInput').focus();
+                const chatContainer = document.querySelector('.chat-container');
+                if (window.innerWidth < 768) {
+                    chatContainer.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        // Health knowledge base
+        const healthKnowledge = {
+            'headache': {
+                common: 'Common causes include stress, dehydration, lack of sleep, or eye strain.',
+                advice: 'Try resting in a dark room, staying hydrated, and taking over-the-counter pain relievers if needed. If severe or persistent, consult a doctor.'
+            },
+            'fever': {
+                common: 'Fever is often a sign of infection or illness.',
+                advice: 'Rest, stay hydrated, and take fever reducers if needed. Seek medical attention if fever is above 103°F (39.4°C) or lasts more than 3 days.'
+            },
+            'cough': {
+                common: 'Can be caused by cold, flu, allergies, or respiratory infections.',
+                advice: 'Stay hydrated, use a humidifier, and try over-the-counter cough medicines. See a doctor if cough persists or is accompanied by difficulty breathing.'
+            },
+            'fatigue': {
+                common: 'Can result from lack of sleep, stress, poor nutrition, or underlying health conditions.',
+                advice: 'Ensure adequate sleep, maintain a balanced diet, exercise regularly, and manage stress. Consult a doctor if fatigue is persistent.'
+            },
+            'back pain': {
+                common: 'Often caused by poor posture, muscle strain, or injury.',
+                advice: 'Practice good posture, use proper lifting techniques, and try gentle stretching. Consider physical therapy for chronic pain.'
+            }
+        };
+
+        async function handleMessage(e) {
+            e.preventDefault();
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            userInput.value = '';
+
+            // Show typing indicator
+            const typingIndicator = addTypingIndicator();
+
+            try {
+                // Process the message and get response
+                const response = await processHealthQuery(message);
+                removeTypingIndicator(typingIndicator);
+                addMessage(response, 'ai');
+            } catch (error) {
+                removeTypingIndicator(typingIndicator);
+                addMessage('I apologize, but I encountered an error processing your query. Please try again.', 'error');
+            }
+        }
+
+        async function processHealthQuery(message) {
+            try {
+                console.log('Fetching response from backend...');
+                const response = await fetch('http://localhost:5000/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Received response:', data);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                if (!data.response) {
+                    throw new Error('No response received from server');
+                }
+                
+                return data.response;
+            } catch (error) {
+                console.error('Error:', error);
+                if (error.message.includes('Failed to fetch')) {
+                    return "Unable to connect to the server. Please make sure the backend is running.";
+                }
+                return "I apologize, but I encountered an error processing your query. Please try again.";
+            }
+        }
+
+        function addMessage(message, type) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            // Convert newlines to <br> tags for better formatting
+            messageDiv.innerHTML = message.replace(/\n/g, '<br>');
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const indicator = document.createElement('div');
+            indicator.className = 'message ai typing-indicator';
+            indicator.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+            chatMessages.appendChild(indicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return indicator;
+        }
+
+        function removeTypingIndicator(indicator) {
+            indicator.remove();
+        }
+
+        // BMI Calculator
+        document.getElementById('bmiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value) / 100; // convert cm to m
+            const bmi = weight / (height * height);
+            const bmiResult = document.getElementById('bmiResult');
+            
+            let category;
+            if (bmi < 18.5) category = 'Underweight';
+            else if (bmi < 25) category = 'Normal weight';
+            else if (bmi < 30) category = 'Overweight';
+            else category = 'Obese';
+
+            bmiResult.innerHTML = `Your BMI: ${bmi.toFixed(1)}<br>Category: ${category}`;
+            bmiResult.style.display = 'block';
+        });
+
+        // Water Reminder
+        let waterCount = parseInt(localStorage.getItem('waterCount') || '0');
+        const lastDate = localStorage.getItem('waterLastDate');
+        const today = new Date().toDateString();
+
+        // Reset counter if it's a new day
+        if (lastDate !== today) {
+            waterCount = 0;
+            localStorage.setItem('waterLastDate', today);
+            localStorage.setItem('waterCount', waterCount);
+        }
+
+        function updateWaterDisplay() {
+            const goal = parseInt(document.getElementById('waterGoal').value);
+            document.getElementById('waterCount').textContent = waterCount;
+            const progress = (waterCount / goal) * 100;
+            document.getElementById('waterProgress').style.width = Math.min(100, progress) + '%';
+        }
+
+        function addWater() {
+            waterCount++;
+            localStorage.setItem('waterCount', waterCount);
+            localStorage.setItem('waterLastDate', today);
+            updateWaterDisplay();
+
+            // Show notification if browser supports it
+            if (Notification.permission === "granted") {
+                const goal = parseInt(document.getElementById('waterGoal').value);
+                if (waterCount === goal) {
+                    new Notification("Daily Water Goal Achieved! 🎉", {
+                        body: "Congratulations! You've reached your water intake goal for today!"
+                    });
+                }
+            }
+        }
+
+        // Water reminder notification
+        if ("Notification" in window) {
+            Notification.requestPermission();
+            
+            // Set up periodic reminders
+            setInterval(() => {
+                const goal = parseInt(document.getElementById('waterGoal').value);
+                if (waterCount < goal && Notification.permission === "granted") {
+                    new Notification("Water Reminder 💧", {
+                        body: "Don't forget to drink water!"
+                    });
+                }
+            }, 3600000); // Remind every hour
+        }
+
+        // Initialize water display
+        updateWaterDisplay();
+
+        // Update progress when goal changes
+        document.getElementById('waterGoal').addEventListener('change', updateWaterDisplay);
+
+        // Attach chat form event listener after all functions are defined
+        document.getElementById('messageForm').addEventListener('submit', handleMessage);
+    </script>
+</body>
+</html> 
