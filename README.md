@@ -1,1 +1,6 @@
 # HealthPulse
+This project develops a medical chatbot that leverages AI, NLP, and Machine Learning to deliver accurate and context-aware responses to user health queries. Medical knowledge from domain-specific PDFs is parsed and segmented into semantic chunks, then embedded using Sentence Transformers to capture contextual meaning. These embeddings are stored in the Pinecone Vector Store, enabling fast and precise Approximate Nearest Neighbor (ANN) search for semantic similarity.
+
+Upon receiving a user query, it is converted into an embedding and matched against the indexed medical data to retrieve the most relevant information. A pre-trained Large Language Model (LLM) such as LLaMA 2 processes these retrieved chunks using few-shot reasoning to generate a coherent, informative response. Additionally, a supervised SVM classifier is integrated to map user-reported symptoms to potential diseases based on trained clinical datasets.
+
+The chatbot supports real-time voice input through the Web Speech API, enhancing accessibility. The system is deployed through a responsive, production-grade full-stack interface using Flask (Python) for the backend and HTML5, JavaScript, CSS3, and Bootstrap for the frontend.
